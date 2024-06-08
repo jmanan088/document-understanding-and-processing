@@ -2,6 +2,8 @@ services:
   image_to_text:
     build: .
     container_name: image_to_text
-    command: python src/image_to_text/ocrimage.py
+    command: python src/app/app.py
+    environment:
+      - DISPLAY=YOUR_IP:0.0
     volumes:
       - .:/code
