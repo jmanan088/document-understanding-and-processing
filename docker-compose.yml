@@ -1,0 +1,7 @@
+services:
+  image_to_text:
+    build: .
+    container_name: image_to_text
+    command: python src/image_to_text/ocrimage.py
+    volumes:
+      - .:/code
