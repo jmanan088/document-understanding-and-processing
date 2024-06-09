@@ -1,10 +1,12 @@
 # AI-Powered Document Understanding and Processing Pipeline
 
+**Note that you need docker installed to run the setup as this is a containerized app.**
 
+This project uses a `python 3.10-slim` docker image.
 
 ## Installing and Running
  
-**Note that you need docker installed to run the setup as this is a containerized app.**
+
 
 First clone the repository. Then read the below text for setup instructions.
 
@@ -27,10 +29,12 @@ To run the app type below command in powershell/terminal of root directory.
 docker-compose up --build
 ```
 
-## Dependecies
+> Put all the PDF files that you want to run in the folder named test.
+
+
+## Libraries Used
 - tesseract-ocr
-- Pythin 3.10-slim
 - pytesseract
-- PyPDF2
 - python3-tk (tkinter)
 - pdf2image
+- poppler-utils

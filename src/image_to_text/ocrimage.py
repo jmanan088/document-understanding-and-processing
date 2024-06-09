@@ -3,7 +3,7 @@ import pytesseract
 
 
 #extracting text from image
-def gettext(filepath):
+def gettext(img):
 
-    text = pytesseract.image_to_string(Image.open(filepath + 'test1.jpeg'))
+    text = pytesseract.image_to_string(img)
     return text

@@ -1,9 +1,8 @@
 from tkinter import * 
 import customtkinter
-import os
-import PyPDF2
-from PIL import Image, ImageTk
+from tkinter.filedialog import askopenfile
 from pdf2image import convert_from_path
+from pathlib import Path
 from image_to_text.ocrimage import gettext
 
 # filepath = '/code/src/test/'
@@ -19,12 +18,65 @@ TEXT_COLOR = "#EAECEE"
 FONT = "Helvetica 14"
 FONT_BOLD = "Helvetica 13 bold"
 
-def button_event():
-    print("button pressed")
+def open_file(root, tkbox):
+    
+    text_file = '/code/src/out/out_text.txt'
+    image_list = []
+
+    #load a PDF file
+    PDF_file = askopenfile(parent=root, mode='rb', filetypes=[("Pdf file", "*.pdf")])
+    if PDF_file:
+        #filename print
+        
+        file_path_components = PDF_file.name.split("/")
+        # Get the filename
+        filename = file_path_components[-1]
+        mssg1 = f"{bot_name}: {filename}\n\n"
+        tkbox.configure(state = NORMAL)
+        tkbox.insert(END, mssg1)
+        tkbox.configure(state = DISABLED)
+
+
+        #Part #1 : Converting PDF to images
+        # Read in the PDF file at 500 DPI
+        pdf_pages = convert_from_path(PDF_file.name, 500)
+
+        # Iterate through all the pages stored above
+        # enumerate() "counts" the pages for us.
+        for pagenp, page in enumerate(pdf_pages, start=1):
+            image_list.append(page)
+
+        
+        #Part #2 - Recognizing text from the images using OCR
+
+        with open(text_file, "w") as output_file:
+            # Open the file in append mode so that
+            # All contents of all images are added to the same file
+
+            # Iterate from 1 to total number of pages
+            for image in image_list:
+
+                # Recognize the text as string in image using pytesserct
+                text = gettext(image)
+
+                # The recognized text is stored in variable text
+                # Any string processing may be applied on text
+                # Here, basic formatting has been done:
+                # In many PDFs, at line ending, if a word can't
+                # be written fully, a 'hyphen' is added.
+                # The rest of the word is written in the next line
+
+                text = text.replace("-\n", "")
+
+                # Finally, write the processed text to the file.
+                output_file.write(text)
+
+
 class chatbot:
 
     def __init__(self):
         self.window = Tk()
+        self.window.geometry('+%d+%d'%(450,150))
         self.setup_main_window()
 
     def run(self):
@@ -63,16 +115,18 @@ class chatbot:
         botlabel.grid_rowconfigure(0)
 
 
-        self.button = customtkinter.CTkButton(botlabel, text="Upload Document", command=button_event())
+        self.button = customtkinter.CTkButton(botlabel, text="Browse", command=lambda : open_file(self.window, self.tk_textbox))
         self.button.grid(row=0, column=0, padx=6, pady=(5,5),  sticky="nsew")
         self.entry = customtkinter.CTkEntry(botlabel, placeholder_text="Ask Document QnA", font=(FONT,14), fg_color = "#2C3E50", text_color="#ffffff")
         self.entry.grid(row=0,column =1,padx=(0,6), pady=(5,5),columnspan=5,  sticky="nsew")
         self.entry.focus()
         self.entry.bind("<Return>",self._on_enter_pressed)
 
+
     def _on_enter_pressed(self, event):
         mssg = self.entry.get()
         self._insert_mssg(mssg, "YOU")
+
 
     def _insert_mssg(self, mssg, sender):
         if not mssg:
@@ -96,5 +150,3 @@ if __name__ == "__main__":
     app=chatbot()
     
     app.run()
-
-
