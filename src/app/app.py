@@ -4,9 +4,10 @@ from tkinter.filedialog import askopenfile
 from pdf2image import convert_from_path
 from pathlib import Path
 from image_to_text.ocrimage import gettext
+from docquery import document, pipeline
 
-# filepath = '/code/src/test/'
-# print(gettext(filepath))
+pipe = pipeline('document-question-answering')
+doc = None
 
 
 bot_name = 'Sam'
@@ -19,10 +20,8 @@ FONT = "Helvetica 14"
 FONT_BOLD = "Helvetica 13 bold"
 
 def open_file(root, tkbox):
-    
     text_file = '/code/src/out/out_text.txt'
     image_list = []
-
     #load a PDF file
     PDF_file = askopenfile(parent=root, mode='rb', filetypes=[("Pdf file", "*.pdf")])
     if PDF_file:
@@ -36,6 +35,8 @@ def open_file(root, tkbox):
         tkbox.insert(END, mssg1)
         tkbox.configure(state = DISABLED)
 
+        global doc
+        doc = document.load_document("/code/src/test/"+filename)
 
         #Part #1 : Converting PDF to images
         # Read in the PDF file at 500 DPI
@@ -114,7 +115,6 @@ class chatbot:
         botlabel.grid_columnconfigure((0,1,2,3,4,5), weight=1)
         botlabel.grid_rowconfigure(0)
 
-
         self.button = customtkinter.CTkButton(botlabel, text="Browse", command=lambda : open_file(self.window, self.tk_textbox))
         self.button.grid(row=0, column=0, padx=6, pady=(5,5),  sticky="nsew")
         self.entry = customtkinter.CTkEntry(botlabel, placeholder_text="Ask Document QnA", font=(FONT,14), fg_color = "#2C3E50", text_color="#ffffff")
@@ -133,16 +133,22 @@ class chatbot:
             return
         
         self.entry.delete(0,END)
-        mssg1 = f"{sender}: {mssg}\n\n"
+        mssg1 = f"{bot_name}: {mssg}\n\n"
         self.tk_textbox.configure(state = NORMAL)
         self.tk_textbox.insert(END, mssg1)
         self.tk_textbox.configure(state = DISABLED)
 
         #response implementation
-        # mssg2 = f"{bot_name}: {mssg}"
-        # self.tk_textbox.configure(state = NORMAL)
-        # self.tk_textbox.insert(END, mssg1)
-        # self.tk_textbox.configure(state = DISABLED)
+        mssg2 = pipe(question=mssg, **doc.context)
+        print(mssg2)
+        ans, val = 1,2
+        for ans, val in mssg2[0].items():
+            if ans =='answer':
+                break
+        mssg1 = f"{sender}: {val}\n\n"
+        self.tk_textbox.configure(state = NORMAL)
+        self.tk_textbox.insert(END, mssg1)
+        self.tk_textbox.configure(state = DISABLED)
 
 
 

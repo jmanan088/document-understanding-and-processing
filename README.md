@@ -31,10 +31,16 @@ docker-compose up --build
 
 > Put all the PDF files that you want to run in the folder named test.
 
+## Result
+After browsing the PDF, you can get all the text from [`out_text`](./src/out/out_text.txt) file.
+And asking the question in chat, you can get answer for specifics.
+
+> You can also see the accuracy in terminal output you started the docker container in, along with word number and page number.
 
 ## Libraries Used
 - tesseract-ocr
 - pytesseract
 - python3-tk (tkinter)
 - pdf2image
-- poppler-utils
+- LayoutXLM
+- DocQuery
